@@ -93,6 +93,9 @@ async def handle_list(msg: types.Message, state: FSMContext):
     buttons = []
 
     for num, pin in data.items():
+        if num in {'last_check', 'last_date_check'}:
+            continue
+
         buttons.append(
             InlineKeyboardButton(num, callback_data=list_cd.new(num, pin))
         )
