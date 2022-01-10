@@ -8,13 +8,12 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.exceptions import MessageNotModified
-from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from envparse import env
 from lxml import etree
 from pytz import utc
 
-import services
+from app import services
 from app.services import apscheduler
 
 env.read_envfile()
