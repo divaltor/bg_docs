@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "bg_citizenship"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+aiogram = "^2.18"
+APScheduler = "^3.8.1"
+httpx = "^0.21.3"
+aioredis = "^2.0.1"
+loguru = "^0.5.3"
+envparse = "^0.2.0"
+lxml = "^4.7.1"
+redis = "^4.1.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
