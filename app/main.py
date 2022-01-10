@@ -118,6 +118,9 @@ async def handle_delete(msg: types.Message, state: FSMContext):
     buttons = []
 
     for num in data:
+        if num in {'last_check', 'last_date_check'}:
+            continue
+
         buttons.append(
             InlineKeyboardButton(num, callback_data=delete_cd.new(num))
         )
