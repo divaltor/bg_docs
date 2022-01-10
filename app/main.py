@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import aiogram
 import httpx
 from aiogram import types, executor
@@ -7,11 +9,13 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.exceptions import MessageNotModified
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from envparse import env
 from lxml import etree
 from pytz import utc
 
 import services
+from app.services import apscheduler
 
 env.read_envfile()
 
@@ -23,6 +27,7 @@ storage = RedisStorage2(
     db=1
 )
 dp = aiogram.Dispatcher(bot, storage=storage)
+trigger = IntervalTrigger(hours=6, timezone=utc)
 
 client = httpx.AsyncClient()
 
@@ -57,11 +62,10 @@ async def parse_data(user_id: int, request_number: str, pin_code: str, from_task
         await bot.send_message(chat_id=user_id, text='Не получилось собрать данные')
         return
 
-    if not from_task:
-        is_message_sent = await compare_results(user_id, result)
+    is_message_sent = await compare_results(user_id, result)
 
-        if not is_message_sent:
-            await bot.send_message(chat_id=user_id, text=result)
+    if not is_message_sent and not from_task:
+        await bot.send_message(chat_id=user_id, text=result)
 
 
 async def compare_results(user_id: int, result: str):
@@ -72,6 +76,7 @@ async def compare_results(user_id: int, result: str):
     if not user_data or user_data.get('last_check') != result:
         await bot.send_message(chat_id=user_id, text=result)
         user_data['last_check'] = result
+        user_data['last_date_check'] = str(datetime.now(tz=utc))
         await fsm_context.set_data(user_data)
 
         return True
@@ -192,8 +197,7 @@ async def handle_start(msg: types.Message, state: FSMContext):
     job_id = f'{msg.from_user.id}_{request_number}_{pin_code}_parse_job'
 
     if not services.apscheduler.get_job(job_id):
-        cron = CronTrigger(hour=18, minute=0, timezone=utc)
-        services.apscheduler.add_job(parse_data, trigger=cron, args=(msg.from_user.id, request_number, pin_code), id=job_id)
+        services.apscheduler.add_job(parse_data, trigger=trigger, args=(msg.from_user.id, request_number, pin_code), id=job_id)
 
     data[request_number] = pin_code
     await state.set_data(data)
@@ -202,6 +206,11 @@ async def handle_start(msg: types.Message, state: FSMContext):
 
 
 async def on_startup(_):
+    jobs = apscheduler.get_jobs()
+
+    for job in jobs:
+        job.reschedule(trigger=trigger)
+
     services.setup()
 
 
