@@ -141,7 +141,10 @@ async def handle_delete_button(query: types.CallbackQuery, state: FSMContext, ca
     request_num = callback_data['request_num']
 
     if callback_data['request_num'] in data:
-        services.apscheduler.remove_job(f'{query.from_user.id}_{request_num}_{data[request_num]}_parse_job')
+        try:
+            services.apscheduler.remove_job(f'{query.from_user.id}_{request_num}_{data[request_num]}_parse_job')
+        except Exception:
+            pass
         del data[callback_data['request_num']]
 
     await state.set_data(data)
