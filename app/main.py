@@ -206,12 +206,12 @@ async def handle_start(msg: types.Message, state: FSMContext):
 
 
 async def on_startup(_):
+    services.setup()
+
     jobs = apscheduler.get_jobs()
 
     for job in jobs:
         job.reschedule(trigger=trigger)
-
-    services.setup()
 
 
 async def on_shutdown(_):
