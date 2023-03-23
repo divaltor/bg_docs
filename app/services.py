@@ -9,6 +9,7 @@ env.read_envfile()
 jobstores = {
     'default': RedisJobStore(
         host=env.str('REDIS_HOST'),
+        port=env.str('REDIS_PORT'),
         password=env.str('REDIS_PASSWORD', default=None)
     )
 }
