@@ -22,8 +22,8 @@ bot = aiogram.Bot(token=env.str('TOKEN'), parse_mode='HTML')
 storage = RedisStorage2(
     host=env.str('REDIS_HOST'),
     password=env.str('REDIS_PASSWORD', default=None),
-    port=env.str('REDIS_PORT'),
-    db=1
+    port=env.int('REDIS_PORT'),
+    db=0
 )
 dp = aiogram.Dispatcher(bot, storage=storage)
 trigger = IntervalTrigger(hours=6, timezone=utc)
